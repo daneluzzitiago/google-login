@@ -1,17 +1,27 @@
 "use client"
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Button, Card, Stack, TextField, Typography } from "@mui/material";
-import { createAccount } from "./firebaseConfig";
+import { createAccount, loginWithEmailAndPassword, useIsAuthenticated } from "./firebaseConfig";
 
 export default function Home() {
   const [displayCreateAccount, setDisplayCreateAccount] = useState(false);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleChangeEmail = (event) => setEmail(event.target.value);
   const handleChangePassword = (event) => setPassword(event.target.value);
+
+  const isAuthenticated = useIsAuthenticated();
+  if(isAuthenticated) {
+    return(
+      <Box display="flex" height="90vh" alignItems="center" justifyContent="center">
+        <Typography>Success!</Typography>
+      </Box>
+    )
+  }
 
   const handleOnClickGoBack = () => {
     setEmail('');
@@ -30,7 +40,8 @@ export default function Home() {
       <Typography>Google Login Integration</Typography>
       <TextField label="E-mail" value={email} onChange={handleChangeEmail}></TextField>
       <TextField label="Password" value={password} onChange={handleChangePassword}></TextField>
-      <Button variant="contained">Login</Button>
+      {error ? <Typography color="red">{error.code}</Typography> : null}
+      <Button variant="contained" onClick={() => loginWithEmailAndPassword(email, password, setError)}>Login</Button>
       <Button onClick={handleOnClickCreateAccount}>Create account</Button>
     </>
   
@@ -39,7 +50,8 @@ export default function Home() {
       <Typography>New Account</Typography>
       <TextField label="E-mail" value={email} onChange={handleChangeEmail}></TextField>
       <TextField label="Password" value={password} onChange={handleChangePassword}></TextField>
-      <Button variant="contained" onClick={() => createAccount(email, password)}>Create</Button>
+      {error ? <Typography color="red">{error.code}</Typography> : null}
+      <Button variant="contained" onClick={() => createAccount(email, password, setError)}>Create</Button>
       <Button onClick={handleOnClickGoBack}>Go back</Button>
     </>
 
